@@ -1,34 +1,18 @@
-
-
-# I. IMPORTS
 # System imports
 import time
 import sys
 
-# Core Logic Imports (The Brain)
+# Core Logic Imports
 from Core_Logic import MazeGrid, MouseState, PIDController
 
-# Hardware Drivers Imports (The Muscles & Senses)
-from Hardware_Drivers import encoders, motors, map_and_initialize_vl53, imu, binarize_sensors, sensor_mapping
+# Hardware Drivers Imports
+from Hardware_Drivers import encoders, motors, sensors, imu
 
-# II. NAVIGATION
-
-def update_xy(x, y, heading): # Updates grid coordinates based on the direction we just drove.
-
-    if heading == 0: return x, y + 1  # North
-    
-    elif heading == 1: return x + 1, y  # East
-    
-    elif heading == 2: return x, y - 1  # South
-    
-    elif heading == 3: return x - 1, y  # West
-    
-    return x, y
-
+# NAVIGATION
 def main():
 
-    #Testing Flag Declaration
-    testing_flag  = False 
+    #Test Mode
+    test_mode  = False 
 
     # Controller initialization
     drive_pid = PIDController(kp=1.8, ki=0.01, kd=0.1)
@@ -56,10 +40,8 @@ def main():
     last_time = time.perf_counter() # perf_counter() returns a high-resolution timer value
     
     # Sensor Initializaton
-    sensorlist = map_and_initialize_vl53() # returns a list
-    
+    sensorlist = sensors.map_and_initialize_vl53() # returns a list
     print('Sensors initializing... ') 
-    
     if sensorlist is None: # verifies sensor list.
         print("Aborting due to incomplete Vl53 sensor initialization.")
         safe_shutdown()
@@ -79,7 +61,7 @@ def main():
             maze.visited[(x,y)] = True
             
             # MAP SENSORS - 0:N, 1:E, 2:S, 3:W
-            f_dir, r_dir, l_dir = sensor_mapping(directions, heading)
+            f_dir, r_dir, l_dir = sensors.sensor_mapping(directions, heading)
 
             now = time.perf_counter()
             dt = now - last_time
@@ -109,6 +91,7 @@ def main():
                     case MouseState.wait_signal_standby: #wait_signal_standby = 1
                         # Keep motors off
                         motors.stop_motors()
+
                         # Check front sensor ( index 1) for hand signal less than 30mm 
                         front_dist = distances[1]
                         
@@ -133,17 +116,19 @@ def main():
                         #1-stop motors at center of current cell
                         motors.stop_motors()
                         #2-read and translate sensor readings into true or false (binarization)
-                        walls = binarize_sensors(distances)
+                        walls = sensors.binarize_sensors(distances)
+
                         #3-update the virtual maze
                         maze.update_wall(x,y,f_dir,walls['F'])
                         maze.update_wall(x,y,r_dir,walls['R'])
                         maze.update_wall(x,y,l_dir,walls['L'])
+
                         #4-check if goal is reached!
                         if (x,y) in maze.goals:
                             print("Goal reached! Returning to start or exiting")
                             
-                            # Testing Flag 
-                            if testing_flag:
+                            # Test Mode 
+                            if test_mode:
                                 exit(1)
                             
                             # re-define the goal to return to the start cell if the goal is reached.
@@ -194,7 +179,7 @@ def main():
                         
                         if distance_traveled_mm >= 180: # 180mm = 1 cell
                             motors.stop_motors()
-                            x, y = update_xy(x,y, heading) # update x,y coordinates
+                            x, y = maze.update_xy(x,y, heading) # update x,y coordinates
                             cells_traveled += 1
                             if previous_state == MouseState.search_goal:
                                 current_state = MouseState.search_goal
@@ -220,11 +205,13 @@ def main():
                             # opposing power to spin. right turns = positive power.
                             motors.set_motor_direction(spin_power, -spin_power)
 
-                    case MouseState.return_to_start:    # return_to_start = 3
+                    case MouseState.return_to_start:  
+
                         #1-stop motors at center of current cell
-                        motors.stop_motors()
+                        motors.stop_motors()    
+
                         #2-read and translate sensor readings into true or false (binarization)
-                        walls = binarize_sensors(distances)
+                        walls = sensors.binarize_sensors(distances)
                         #3-update the virtual maze
                         maze.update_wall(x,y,f_dir,walls['F'])
                         maze.update_wall(x,y,r_dir,walls['R'])
@@ -262,25 +249,28 @@ def main():
                             heading = best_dir
                             # state transition
                             current_state = MouseState.turning 
-                    case MouseState.speed_run_moving:     # speed_run = 4
+
+                    case MouseState.speed_run_moving: 
                         # Path Generation
                         path = maze.get_shortest_path()
 
 
 
-                    #               case MouseState.speed_run_turning:
+                    #case MouseState.speed_run_turning:
                         
 
                     case MouseState.fault:     # Fault = 5
                         print("Critical Fault: Motor Stall Detected. Manual Reset Required.")
                         time.sleep(1) # Loop infiniely until PI is turned off.
-                    #case 6: back_align = 6 must be hardware compatible.    
+                    #case 6: back_align = 6 must be hardware compatible.   
+ 
             last_time = now
             time.sleep(0.01)
 
     except KeyboardInterrupt:
         motors.stop_motors()
         motors.STBY.off()
+
 def safe_shutdown(): #Stop motors, stop PWM (guarded), cleanup GPIO.
     try:
         motors.stop_motors()
