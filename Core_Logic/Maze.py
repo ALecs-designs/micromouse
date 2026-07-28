@@ -35,7 +35,7 @@ class MazeGrid:
         if 0 <= next_x < self.width and 0 <= next_y < self.height:
             self.walls[(next_x, next_y)][opposite[direction]] = exists
 
-    def flood_fill(self, is_speed_run=False):
+    def flood_fill(self, speed_run_mode=False):
         """Standard Flood Fill to calculate distances to goal."""
         """Flood-fill Dijkstra: Calculates pathing weights to goals."""
         for cell in self.dist: self.dist[cell] = 255
@@ -48,7 +48,7 @@ class MazeGrid:
             for x in range(self.width):
                 for y in range(self.height):
                     if (x, y) in self.goals: continue
-                    if is_speed_run and not self.visited[(x,y)]:
+                    if speed_run_mode and not self.visited[(x,y)]:
                         continue
                     min_dist = 255
                     for d, is_wall in self.walls[(x, y)].items(): # 'd' as in direction. Character for each of the 4 cardinal directions
@@ -60,7 +60,7 @@ class MazeGrid:
                             elif d == 'W': next_x -= 1
                             
                             if 0 <= next_x < self.width and 0 <= next_y < self.height: # is next x and y in the grid?
-                                if is_speed_run and not self.visited[(x,y)]:
+                                if speed_run_mode and not self.visited[(x,y)]:
                                     continue
                                 min_dist = min(min_dist, self.dist[(next_x, next_y)] + 1) # assign lowest value btw 255 and current distance to min dist 
                     

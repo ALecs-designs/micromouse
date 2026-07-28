@@ -140,7 +140,7 @@ def main():
                             continue
                         
                         #5-call floodfill
-                        maze.flood_fill(is_speed_run=False)
+                        maze.flood_fill(speed_run_mode=False)
                         
                         #6-decide the best cell for next move
                         best_dir = maze.get_best_direction(x,y, heading)
@@ -224,10 +224,10 @@ def main():
                             # transition states
                             current_state = MouseState.speed_run_moving
                             # flood fill
-                            maze.flood_fill(is_speed_run= True)
+                            maze.flood_fill(speed_run_mode= True)
                             continue
                         #5-call floodfill
-                        maze.flood_fill(is_speed_run= False)
+                        maze.flood_fill(speed_run_mode= False)
                         #6-decide the best cell for next move
                         best_dir = maze.get_best_direction(x,y, heading)
                         #6-execute movement
