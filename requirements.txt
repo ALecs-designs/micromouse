@@ -1,0 +1,7 @@
+gpiozero
+adafruit-circuitpython-extended-bus
+adafruit-circuitpython-lis3mdl
+adafruit-circuitpython-lsm6ds
+board
+adafruit-circuitpython-vl53l0x
+digitalio
