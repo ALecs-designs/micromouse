@@ -1,6 +1,6 @@
 import time
 import board
-import adafruit-vl53l0x
+import adafruit_vl53l0x
 import digitalio
 from .hardware_setup import i2c
 
