@@ -7,6 +7,11 @@ from Core_Logic import MazeGrid, MouseState, PIDController
 
 # Hardware Drivers Imports
 from Hardware_Drivers import encoders, motors, sensors, imu
+from gpiozero.pins.lgpio import LGPIOFactory #NEW
+
+Device.pin_factory=LGPIOFactory() #new 
+
+
 
 # NAVIGATION
 def main():

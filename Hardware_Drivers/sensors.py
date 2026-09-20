@@ -1,4 +1,8 @@
-from .hardware_setup import time, i2c, board, adafruit_vl53l0x, digitalio
+import time
+import board
+import adafruit-vl53l0x
+import digitalio
+from .hardware_setup import i2c
 
 # XSHUT pin mapping for sensors (BCM)
 xshut_pins = [board.D27, board.D22, board.D17]  # left, front, right
@@ -120,4 +124,4 @@ def sensor_mapping(directions_list, heading): # return array
     right = directions_list [(heading+1) % 4]
     left = directions_list [(heading-1) % 4]
 
-    return directions_list[front, right, left]
+    return front, right, left
