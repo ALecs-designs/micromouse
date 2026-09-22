@@ -59,6 +59,9 @@ class MazeGrid:  # This class is a virtual, ideal representation of the real maz
         # if next cell coordinates are valid (i.e. between 0-15)/(inside the mazegrid) update the minimum distance variable
         if 0 <= next_x < self.width and 0 <= next_y < self.height:
             self.walls[(next_x, next_y)][opposite[direction]] = exists
+
+
+
     def flood_fill(self, is_speed_run=False): #This function calculate distances to goal
         for cell in self.dist: self.dist[cell] = 255  # for every cell set the distance to 255
         for g in self.goals: self.dist[g] = 0 # for every goal cell  set the distance to 0
@@ -86,12 +89,17 @@ class MazeGrid:  # This class is a virtual, ideal representation of the real maz
                                 # Prevents flood fill to look at unvisited neighbor cells during speed_run
                                 if is_speed_run and not self.visited[(next_x,next_y)]:
                                     continue
+
+
+
                                 min_dist = min(min_dist, self.dist[(next_x, next_y)] + 1) # assign lowest value btw 255 and current distance to min dist 
                     # Check if current cell distance is the smallest. If not it update it.            
                     if self.dist[(x, y)] != min_dist:
                         self.dist[(x, y)] = min_dist
                         API.setText(x, y, str(min_dist))
                         changed = True # confirm the change of minimum distance varable to leave.
+
+
     def get_shortest_path(self, start=(0,0)):
         path = [start]
         curr = start
