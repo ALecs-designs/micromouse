@@ -1,7 +1,11 @@
+# 9/22/2026
+
 gpiozero
-adafruit-circuitpython-extended-bus
+adafruit-extended-bus
 adafruit-circuitpython-lis3mdl
 adafruit-circuitpython-lsm6ds
-board
 adafruit-circuitpython-vl53l0x
-digitalio
+adafruit-blinka
+
+# digitalio
+# board
